@@ -1,28 +1,65 @@
 import sys
 import os
 
-
+# Ajuste para garantir que o Python encontre as pastas no Mac
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from modelos.produto import Produto
 from structures.lista_encadeada import ListaEncadeada
+from cantinadados import GerenciadorDados
+from modelos.produto import Produto
 
-def sistema():
-    # Iniciando a estrutura manual
-    estoque_fatec = ListaEncadeada()
+def mostrar_menu():
+    print("\n" + "="*35)
+    print("      🛒 CANTINA FATEC 2026")
+    print("="*35)
+    print("1. Ver Estoque Completo")
+    print("2. Adicionar Produto Manualmente")
+    print("3. Gerar +5 Itens Aleatórios")
+    print("0. Sair e Salvar")
+    print("="*35)
+    return input("Escolha uma opção: ")
 
-    # Cadastrando alguns itens para testar
-    p1 = Produto("Salgado Assado", 4.50, 9.00, "19/03", "20/03", 25)
-    p2 = Produto("Suco Natural", 3.00, 7.50, "19/03", "21/03", 15)
-    p3 = Produto("Bolo de Pote", 5.00, 12.00, "19/03", "25/03", 10)
+def sistema_principal():
+    gerenciador = GerenciadorDados()
+    
+    # Tenta carregar a lista existente
+    estoque = gerenciador.carregar_estoque()
+    
+    # Se for a primeira vez, cria do zero
+    if estoque is None:
+        estoque = ListaEncadeada()
+        gerenciador.gerar_dados_aleatorios(estoque, 5)
+        gerenciador.salvar_estoque(estoque)
 
-    # Colocando na nossa lista manual
-    estoque_fatec.inserir_no_final(p1)
-    estoque_fatec.inserir_no_final(p2)
-    estoque_fatec.inserir_no_final(p3)
+    while True:
+        opcao = mostrar_menu()
 
-    # Mostrando o resultado no terminal
-    estoque_fatec.exibir_estoque()
+        if opcao == "1":
+            print("\n--- LISTAGEM DE ESTOQUE ---")
+            estoque.exibir_estoque()
+            input("\nAperte Enter para voltar ao menu...")
+
+        elif opcao == "2":
+            print("\n--- CADASTRO DE PRODUTO ---")
+            nome = input("Nome do item: ")
+            p_venda = float(input("Preço de venda: R$ "))
+            qtd = int(input("Quantidade: "))
+            
+            # Criando o objeto e inserindo na lista encadeada
+            novo = Produto(nome, p_venda/2, p_venda, "21/03", "30/03", qtd)
+            estoque.inserir_no_final(novo)
+            print(f"✅ {nome} adicionado com sucesso!")
+
+        elif opcao == "3":
+            gerenciador.gerar_dados_aleatorios(estoque, 5)
+            print("🎲 Mais 5 itens adicionados!")
+
+        elif opcao == "0":
+            gerenciador.salvar_estoque(estoque)
+            print("💾 Dados salvos. Saindo... tchau!")
+            break
+        else:
+            print("❌ Opção inválida, tente novamente.")
 
 if __name__ == "__main__":
-    sistema()
+    sistema_principal()
