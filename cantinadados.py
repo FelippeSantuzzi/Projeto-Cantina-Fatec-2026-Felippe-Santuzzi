@@ -3,45 +3,42 @@ import os
 import random
 from faker import Faker
 from modelos.produto import Produto
+from modelos.pagamento import Pagamento
 
 class GerenciadorDados:
-    def __init__(self, arquivo='estoque.pkl'):
+    def __init__(self, arquivo='sistema_cantina.pkl'):
         self.arquivo = arquivo
         self.fake = Faker('pt_BR')
 
-    def gerar_dados_aleatorios(self, lista_encadeada, quantidade=5):
-        """Usa uma lista temática e o Faker para completar os detalhes."""
-        itens_reais = [
-            'Coca-Cola 350ml', 'Salgadinho Torcida', 'Halls Mentol', 
-            'Coxinha de Frango', 'Pão de Queijo', 'Suco Del Valle', 
-            'Chocolate Bis', 'Pastel de Carne', 'Água Mineral', 'Trident'
-        ]
-
-        print(f"🎲 Gerando {quantidade} produtos reais da Cantina...")
+    def gerar_dados_iniciais(self, lista_estoque, lista_pagamentos):
+        """Gera massa de dados para teste em ambos os módulos."""
+        # Produtos
+        itens = ['Coca-Cola', 'Coxinha', 'Trident', 'Suco', 'Pão de Queijo']
+        for item in itens:
+            p_venda = round(random.uniform(5.0, 10.0), 2)
+            novo_p = Produto(item, p_venda/2, p_venda, "21/03", "30/03", 50)
+            lista_estoque.inserir_no_final(novo_p)
         
-        for _ in range(quantidade):
-            nome = random.choice(itens_reais) 
-            p_compra = round(random.uniform(2.0, 5.0), 2)
-            p_venda = round(p_compra * 1.8, 2)
-            
-            # Faker gerando as datas no formato brasileiro
-            data_c = self.fake.date_between(start_date='-10d', end_date='today').strftime('%d/%m/%Y')
-            data_v = self.fake.date_between(start_date='today', end_date='+30d').strftime('%d/%m/%Y')
-            qtd = random.randint(10, 100)
-            
-            novo_p = Produto(nome, p_compra, p_venda, data_c, data_v, qtd)
-            lista_encadeada.inserir_no_final(novo_p)
+        # Pagamentos
+        categorias = ['Aluno', 'Servidor', 'Professor']
+        cursos = ['IA', 'ESG']
+        for _ in range(3):
+            pago = Pagamento(self.fake.name(), random.choice(categorias), random.choice(cursos), 15.50)
+            lista_pagamentos.inserir_no_final(pago)
 
-    def salvar_estoque(self, lista_encadeada):
-        """Salva a estrutura da lista usando Pickle."""
+    def salvar_tudo(self, lista_estoque, lista_pagamentos):
+        """Salva as duas listas encadeadas em um único arquivo."""
+        dados = {
+            'estoque': lista_estoque,
+            'pagamentos': lista_pagamentos
+        }
         with open(self.arquivo, 'wb') as f:
-            pickle.dump(lista_encadeada, f)
-        print("💾 Estoque salvo com sucesso (Pickle)!")
+            pickle.dump(dados, f)
+        print("\n💾 Todo o sistema foi salvo com sucesso!")
 
-    def carregar_estoque(self):
-        """Carrega a lista do arquivo se ele existir."""
+    def carregar_tudo(self):
+        """Recupera os dados salvos."""
         if os.path.exists(self.arquivo):
             with open(self.arquivo, 'rb') as f:
-                print("📂 Carregando dados existentes via Pickle...")
-                return pickle.load(f) # <--- Certifique-se que é LOAD aqui
+                return pickle.load(f)
         return None
