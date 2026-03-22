@@ -1,24 +1,47 @@
 class ListaEncadeada:
     def __init__(self):
-        self.head = None  # Onde a lista começa
+        self.__inicio = None
 
     def inserir_no_final(self, novo_produto):
-        if self.head is None:
-            self.head = novo_produto
+        if self.__inicio is None:
+            self.__inicio = novo_produto
         else:
-            atual = self.head
-            while atual.proximo:
-                atual = atual.proximo
-            atual.proximo = novo_produto
+            atual = self.__inicio
+            while atual.get_proximo() is not None:
+                atual = atual.get_proximo()
+            atual.set_proximo(novo_produto)
+
+    def realizar_baixa_estoque(self, nome_produto):
+        """
+        Busca o produto pelo nome. Se encontrar e houver saldo, 
+        diminui 1 unidade e retorna o valor de venda.
+        """
+        atual = self.__inicio
+        
+        while atual is not None:
+            # Comparacao em minusculo para evitar erros de digitacao
+            if atual.get_nome().lower() == nome_produto.lower():
+                if atual.get_quantidade() > 0:
+                    nova_qtd = atual.get_quantidade() - 1
+                    atual.set_quantidade(nova_qtd)
+                    return atual.get_preco_venda()
+                else:
+                    return "SEM_ESTOQUE"
+            atual = atual.get_proximo()
+            
+        return "NAO_ENCONTRADO"
 
     def exibir_estoque(self):
-        atual = self.head
+        print("\n--- RELATORIO DE ESTOQUE ATUAL ---")
+        atual = self.__inicio
         if not atual:
-            print("\n[!] O estoque está vazio.")
+            print("Estoque vazio.")
             return
         
-        print("\n--- RELATÓRIO DE ESTOQUE ATUAL ---")
         while atual:
-            print(f"Item: {atual.nome:.<20} | Preço: R${atual.preco_venda:>6.2f} | Qtd: {atual.quantidade:>3}")
-            atual = atual.proximo
+            print(atual)
+            atual = atual.get_proximo()
         print("----------------------------------")
+
+    def get_inicio(self):
+        return self.__inicio
