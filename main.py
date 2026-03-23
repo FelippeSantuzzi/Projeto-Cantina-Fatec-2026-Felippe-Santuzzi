@@ -1,105 +1,125 @@
+import os
 from structures.lista_encadeada import ListaEncadeada
-from structures.lista_pagamentos import ListaPagamentos
-from modelos.pagamento import Pagamento
 from cantinadados import GerenciadorDados
+from modelos.pagamento import Pagamento
 
 def exibir_diario_contabil(estoque, pagamentos):
-    """
-    Calcula o saldo das contas Caixa e Estoque percorrendo as listas encadeadas.
-    """
-    print("\n--- DIARIO CONTABIL (ADMINISTRACAO ATLETICA) ---")
+    """Calcula e exibe o resumo financeiro em tempo real."""
+    print("\n" + "="*55)
+    print("       📊 DIÁRIO CONTÁBIL - GESTÃO FINANCEIRA")
+    print("="*55)
     
-    # 1. Calculo do Caixa (Soma de todos os pagamentos realizados)
-    total_caixa = 0.0
+    total_caixa = 0
     atual_pag = pagamentos.get_inicio()
-    while atual_pag is not None:
-        total_caixa += atual_pag.get_valor()
-        atual_pag = atual_pag.get_proximo()
-        
-    # 2. Calculo do Valor em Estoque (Patrimonio parado)
-    valor_total_estoque = 0.0
+    while atual_pag:
+        total_caixa += atual_pag.dado.get_valor()
+        atual_pag = atual_pag.proximo
+    
+    total_investido_custo = 0
+    total_esperado_venda = 0
     atual_prod = estoque.get_inicio()
-    while atual_prod is not None:
-        valor_total_estoque += (atual_prod.get_preco_venda() * atual_prod.get_quantidade())
-        atual_prod = atual_prod.get_proximo()
+    while atual_prod:
+        qtd = atual_prod.dado.get_quantidade()
+        total_investido_custo += (atual_prod.dado.get_preco_custo() * qtd)
+        total_esperado_venda += (atual_prod.dado.get_preco_venda() * qtd)
+        atual_prod = atual_prod.proximo
         
-    print(f"CONTA CAIXA (Entradas PIX):    R$ {total_caixa:.2f}")
-    print(f"CONTA ESTOQUE (Patrimonio):    R$ {valor_total_estoque:.2f}")
-    print(f"VALOR TOTAL DO NEGOCIO:        R$ {(total_caixa + valor_total_estoque):.2f}")
-    print("-" * 50)
+    lucro_potencial = total_esperado_venda - total_investido_custo
 
-def mostrar_menu():
-    print("\n" + "="*50)
-    print("      SISTEMA GESTAO CANTINA - FATEC 2026")
-    print("="*50)
-    print("1. Visualizar Estoque")
-    print("2. Relatorio de Pagamentos PIX")
-    print("3. Registrar Venda (Baixa de Estoque + Pagamento)")
-    print("4. Diario Contabil (Caixa vs Estoque)")
-    print("5. Gerar Massa de Dados (Teste)")
-    print("0. Sair e Salvar Sistema")
-    print("="*50)
-    return input("Selecione uma opcao: ")
+    print(f"💰 DINHEIRO EM CAIXA (PIX):      R$ {total_caixa:>8.2f}")
+    print(f"💸 INVESTIMENTO EM PRODUTOS:     R$ {total_investido_custo:>8.2f}")
+    print(f"📦 VALOR DE REVENDA DO ESTOQUE:  R$ {total_esperado_venda:>8.2f}")
+    print("-" * 55)
+    print(f"📈 LUCRO BRUTO PREVISTO:         R$ {lucro_potencial:>8.2f}")
+    print(f"💎 PATRIMÔNIO ATUAL (CAIXA+EST): R$ {total_caixa + total_investido_custo:>8.2f}")
+    print("=" * 55)
 
-def sistema_principal():
+def main():
+    estoque = ListaEncadeada()
+    pagamentos = ListaEncadeada()
     gerenciador = GerenciadorDados()
-    dados = gerenciador.carregar_tudo()
 
+    dados = gerenciador.carregar_tudo()
     if dados:
-        print("Dados recuperados com sucesso.")
         estoque = dados['estoque']
         pagamentos = dados['pagamentos']
-    else:
-        print("Iniciando novo banco de dados.")
-        estoque = ListaEncadeada()
-        pagamentos = ListaPagamentos()
 
     while True:
-        opcao = mostrar_menu()
+        print("\n" + "—"*50)
+        print("      SISTEMA GESTÃO CANTINA - FATEC 2026")
+        print("—"*50)
+        print("1. Visualizar Estoque (Custo e Venda)")
+        print("2. Histórico de Vendas (Pagamentos PIX)")
+        print("3. Registrar Nova Venda")
+        print("4. Diário Contábil (Lucro e Patrimônio)")
+        print("5. Gerar/Resetar Massa de Dados (Qtd Inicial: 4)")
+        print("6. Relatório de Reposição (Estoque Crítico)")
+        print("0. Sair e Salvar")
+        print("—"*50)
+        
+        opcao = input("\nEscolha uma opção: ")
 
         if opcao == "1":
-            estoque.exibir_estoque()
-        
+            print("\n" + "—"*20 + " ESTOQUE ATUAL " + "—"*20)
+            estoque.exibir_lista()
+            input("\nPressione Enter para continuar...")
+
         elif opcao == "2":
-            pagamentos.listar_pagamentos()
-        
+            print("\n" + "—"*15 + " HISTÓRICO DE PAGAMENTOS " + "—"*15)
+            pagamentos.exibir_lista()
+            input("\nPressione Enter para continuar...")
+
         elif opcao == "3":
-            print("\n--- REGISTRAR VENDA (CONSUMO) ---")
-            estoque.exibir_estoque()
-            item = input("Digite o nome do produto para venda: ")
+            print("\n--- REGISTRAR VENDA ---")
+            nome_p = input("Nome do produto: ")
+            resultado = estoque.realizar_baixa_estoque(nome_p)
             
-            # Chama a logica de baixa na estrutura de dados
-            resultado = estoque.realizar_baixa_estoque(item)
-            
-            if resultado == "NAO_ENCONTRADO":
-                print("Erro: Produto nao localizado no sistema.")
-            elif resultado == "SEM_ESTOQUE":
-                print("Erro: Produto com saldo insuficiente em estoque.")
-            else:
-                # Se encontrou, 'resultado' contem o valor do produto
-                print(f"Valor da venda: R$ {resultado}")
-                nome_aluno = input("Nome do Aluno: ")
-                cat = input("Categoria (Aluno/Servidor/Professor): ")
-                curso = input("Curso (IA/ESG): ")
+            if isinstance(resultado, float):
+                print(f"✅ Produto encontrado! Valor: R$ {resultado:.2f}")
+                cliente = input("Nome do Cliente: ")
+                categoria = input("Categoria (Aluno/Professor/Servidor): ")
+                curso = input("Curso (IA/ESG/Nenhum): ")
                 
-                # Cria o lancamento financeiro automaticamente
-                novo_pix = Pagamento(nome_aluno, cat, curso, resultado)
-                pagamentos.inserir_no_final(novo_pix)
-                print("Venda realizada com sucesso e estoque atualizado.")
+                novo_pg = Pagamento(cliente, categoria, curso, resultado)
+                pagamentos.inserir_no_final(novo_pg)
+                print(f"\n✨ Venda registrada com sucesso!")
+            elif resultado == "SEM_ESTOQUE":
+                print("❌ Erro: Este produto está esgotado!")
+            else:
+                print("❌ Erro: Produto não cadastrado.")
 
         elif opcao == "4":
             exibir_diario_contabil(estoque, pagamentos)
+            input("\nPressione Enter para continuar...")
 
         elif opcao == "5":
-            gerenciador.gerar_dados_iniciais(estoque, pagamentos)
-            print("Massa de dados gerada para testes.")
+            print("\n⚠️ Isso apagará os dados atuais.")
+            confirmar = input("Confirmar reset e gerar novos dados? (s/n): ")
+            if confirmar.lower() == 's':
+                estoque = ListaEncadeada()
+                pagamentos = ListaEncadeada()
+                gerenciador.gerar_dados_iniciais(estoque, pagamentos)
+                gerenciador.salvar_tudo(estoque, pagamentos)
+                print("\n✅ Sistema reiniciado com 4 unidades por produto.")
+
+        elif opcao == "6":
+            print("\n" + "!"*15 + " RELATÓRIO DE COMPRAS " + "!"*15)
+            criticos = estoque.obter_relatorio_reposicao(limite=3)
+            if not criticos:
+                print("\n✅ Estoque saudável! Nenhum item crítico.")
+            else:
+                print(f"\n{'PRODUTO':<20} | {'QTD':<5} | {'STATUS'}")
+                print("-" * 40)
+                for item in criticos:
+                    print(f"{item['nome']:<20} | {item['qtd']:<5} | [⚠️ REPOR]")
+            input("\nPressione Enter para continuar...")
 
         elif opcao == "0":
             gerenciador.salvar_tudo(estoque, pagamentos)
-            print("Sistema encerrado.")
+            print("\n💾 Dados salvos. Saindo...")
             break
         else:
-            print("Opcao invalida.")
+            print("\n🚫 Opção inválida!")
 
 if __name__ == "__main__":
-    sistema_principal()
+    main()
