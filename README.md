@@ -1,17 +1,17 @@
 # 🍔 Projeto Cantina Fatec 2026
 
-Este projeto consiste em um sistema de gerenciamento para uma cantina universitária, desenvolvido com foco em **Programação Orientada a Objetos (POO)** e persistência de dados.
+Este projeto gerencia uma cantina universitária com foco em **POO** e persistência de dados.
 
-## 🏗️ Estrutura do Projeto
-* **main.py**: Ponto de entrada da aplicação.
-* **cantinadados.py**: Módulo de manipulação e armazenamento de dados.
-* **/modelos**: Definições das classes (ex: Produto, Categoria).
-* **/estruturas**: Estruturas de dados que sustentam o inventário.
+## 🏗️ Estrutura
+* **main.py**: Ponto de entrada.
+* **cantinadados.py**: Manipulação de dados.
+* **/modelos**: Classes do sistema.
+* **/estruturas**: Listas e dicionários.
 
-## 🛠️ Tecnologias e Bibliotecas
+## 🛠️ Tecnologias
 * **Python 3**
-* **Pickle**: Utilizado para a serialização e persistência de objetos.
-* **Faker**: Biblioteca para geração de dados fictícios de teste.
+* **Pickle**: Persistência de objetos.
+* **Faker**: Geração de dados fictícios.
 
 ---
-**Autor:** Felippe Santuzzi | **Instituição:** Fatec Rio Claro
+**Autor:** Felippe Santuzzi | **Fatec Rio Claro**
