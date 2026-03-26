@@ -1,3 +1,11 @@
+#Lista encadeada para armazenar os produtos do estoque.
+# Cada nó contém um objeto Produto e um ponteiro para o próximo nó.
+#  A classe ListaEncadeada possui métodos para inserir produtos no final da lista,
+#  exibir o estoque, realizar baixas de estoque durante as vendas e
+#  obter um relatório de produtos que estão com quantidade crítica (abaixo de um limite definido). O
+#  método exibir_lista foi personalizado para mostrar os produtos em um formato tabular, 
+# facilitando a leitura e a visualização do estoque no console.
+
 class Nodo:
     def __init__(self, dado):
         self.dado = dado

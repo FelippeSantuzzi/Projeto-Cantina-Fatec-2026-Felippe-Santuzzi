@@ -2,6 +2,7 @@ import os
 from structures.lista_encadeada import ListaEncadeada
 from cantinadados import GerenciadorDados
 from modelos.pagamento import Pagamento
+from modelos.produto import Produto # Garanta que a classe Produto está importada
 
 def exibir_diario_contabil(estoque, pagamentos):
     """Calcula e exibe o resumo financeiro em tempo real."""
@@ -48,20 +49,22 @@ def main():
         print("\n" + "—"*50)
         print("      SISTEMA GESTÃO CANTINA - FATEC 2026")
         print("—"*50)
-        print("1. Visualizar Estoque (Custo e Venda)")
+        print("1. Visualizar Estoque (Custo, Venda e Validade)") # Texto atualizado
         print("2. Histórico de Vendas (Pagamentos PIX)")
         print("3. Registrar Nova Venda")
         print("4. Diário Contábil (Lucro e Patrimônio)")
         print("5. Gerar/Resetar Massa de Dados (Qtd Inicial: 4)")
         print("6. Relatório de Reposição (Estoque Crítico)")
+        print("7. Cadastrar Produto Manualmente") # Sugestão de nova opção para testar a Validade
         print("0. Sair e Salvar")
         print("—"*50)
         
         opcao = input("\nEscolha uma opção: ")
 
         if opcao == "1":
-            print("\n" + "—"*20 + " ESTOQUE ATUAL " + "—"*20)
-            estoque.exibir_lista()
+            print("\n" + "—"*10 + " ESTOQUE ATUAL (COM VALIDADE E ENTRADA) " + "—"*10)
+            # Este método vai chamar o __str__ de cada Produto automaticamente
+            estoque.exibir_lista() 
             input("\nPressione Enter para continuar...")
 
         elif opcao == "2":
@@ -98,6 +101,7 @@ def main():
             if confirmar.lower() == 's':
                 estoque = ListaEncadeada()
                 pagamentos = ListaEncadeada()
+                # O GerenciadorDados deve estar atualizado para criar Produtos com Validade
                 gerenciador.gerar_dados_iniciais(estoque, pagamentos)
                 gerenciador.salvar_tudo(estoque, pagamentos)
                 print("\n✅ Sistema reiniciado com 4 unidades por produto.")
@@ -113,6 +117,19 @@ def main():
                 for item in criticos:
                     print(f"{item['nome']:<20} | {item['qtd']:<5} | [⚠️ REPOR]")
             input("\nPressione Enter para continuar...")
+
+        elif opcao == "7": # OPÇÃO PARA TESTAR O "ESCURINHO"
+            print("\n--- CADASTRAR NOVO PRODUTO ---")
+            n = input("Nome: ")
+            c = float(input("Preço Custo: "))
+            v = float(input("Preço Venda: "))
+            val = input("Validade (DD/MM/AA): ")
+            ent = input("Entrada (DD/MM/AA): ")
+            q = int(input("Quantidade: "))
+            
+            novo = Produto(n, c, v, val, ent, q)
+            estoque.inserir_no_final(novo)
+            print("✅ Produto cadastrado com sucesso!")
 
         elif opcao == "0":
             gerenciador.salvar_tudo(estoque, pagamentos)

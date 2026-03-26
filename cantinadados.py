@@ -1,18 +1,18 @@
-import random
-import pickle
-from faker import Faker
-from modelos.produto import Produto
-from modelos.pagamento import Pagamento
+import random # Para geração de preços e valores aleatórios
+import pickle # Para salvar e carregar os dados do sistema
+from faker import Faker # Para gerar nomes fictícios de clientes
+from modelos.produto import Produto # Para criar objetos Produto com atributos como validade e data de entrada
+from modelos.pagamento import Pagamento # Para criar objetos Pagamento com atributos como categoria e curso
 
-class GerenciadorDados:
-    def __init__(self):
+class GerenciadorDados: # Para gerenciar o salvamento e carregamento dos dados
+    def __init__(self): 
         self.arquivo = "sistema_cantina.pkl"
         self.fake = Faker('pt_BR')
 
-    def salvar_tudo(self, estoque, pagamentos):
+    def salvar_tudo(self, estoque, pagamentos): # Salva os dados do estoque e dos pagamentos em um arquivo binário usando pickle. Ele cria um dicionário contendo as duas listas encadeadas e o salva no arquivo especificado. Em caso de erro durante o salvamento, ele captura a exceção e exibe uma mensagem de erro.
         dados = {'estoque': estoque, 'pagamentos': pagamentos}
         try:
-            with open(self.arquivo, 'wb') as f:
+            with open(self.arquivo, 'wb') as f: # Abre o arquivo em modo de escrita binária
                 pickle.dump(dados, f)
             print("✅ Dados salvos com sucesso!")
         except Exception as e:
